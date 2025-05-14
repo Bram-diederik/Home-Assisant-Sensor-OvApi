@@ -4,5 +4,6 @@
   "domain": "ovapi",
   "domain_name": "Sensor OvApi",
   "repository": "https://github.com/Bram-diederik/Home-Assisant-Sensor-OvApi",
-  "file_type": "integration"
+  "file_type": "integration",
+  "keywords": ["ovapi", "public transport", "openbaar vervoer", "dutch", "bus", "ov"]
 }
