@@ -2,7 +2,7 @@
 
 This is a sensor for Home Assistant and it will retrieve departure information of a particular stop. The sensor returns the first upcomming departure.
 
-![Lovelace Screenshot](https://github.com/Paul-dH/Home-Assisant-Sensor-OvApi/blob/master/resources/img/preview.png)
+![Lovelace Screenshot](https://github.com/Bram-diederik//Home-Assisant-Sensor-OvApi/blob/master/resources/img/preview.png)
 
 ### Install (better use Hacs):
 - Create the following folder structure: /config/custom_components/ovapi and place these [3 files](https://github.com/Bram-diederik/Home-Assisant-Sensor-OvApi/tree/master/custom_components/ovapi) there.
