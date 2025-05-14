@@ -1,9 +1,9 @@
 {
     "domain": "ovapi",
     "name": "Sensor OvApi",
-    "documentation": "https://github.com/Paul-dH/Home-Assisant-Sensor-OvApi",
+    "documentation": "https://github.com/Bram-diederik/Home-Assisant-Sensor-OvApi",
     "dependencies": [],
     "codeowners": [],
     "requirements": [],
-    "version": "1.4.3"
+    "version": "2.0.0"
   }

@@ -22,6 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 _RESOURCE = 'v0.ovapi.nl'
 
 CONF_STOP_CODE = 'stop_code'
+CONF_LINE_DIRECTION = 'line_direction'
 CONF_TIMING_POINT_CODE = 'timing_point_code'
 CONF_ROUTE_CODE = 'route_code'
 CONF_SHOW_FUTURE_DEPARTURES = 'show_future_departures'
@@ -32,6 +33,7 @@ CONF_CREDITS = 'Data provided by v0.ovapi.nl'
 DEFAULT_NAME = 'Line info'
 DEFAULT_DATE_FORMAT = "%y-%m-%dT%H:%M:%S"
 DEFAULT_SHOW_FUTURE_DEPARTURES = 0
+DEFAULT_LINE_DIRECTION = 0
 
 ATTR_NAME = 'name'
 ATTR_STOP_CODE = 'stop_code'
@@ -60,6 +62,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_LINE_FILTER, default=CONF_LINE_FILTER): cv.string,
     vol.Optional(CONF_SHOW_FUTURE_DEPARTURES, default=DEFAULT_SHOW_FUTURE_DEPARTURES): cv.positive_int,
     vol.Optional(CONF_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
+    vol.Optional(CONF_LINE_DIRECTION, default=DEFAULT_LINE_DIRECTION): cv.positive_int,
 })
 
 
@@ -71,6 +74,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     route_code = config.get(CONF_ROUTE_CODE)
     future_departures = config.get(CONF_SHOW_FUTURE_DEPARTURES)
     line_filter = config.get(CONF_LINE_FILTER)
+    line_direction = config.get(CONF_LINE_DIRECTION)
 
     ov_api = OvApiData(stop_code, timing_point_code)
 
@@ -83,16 +87,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     for counter in range(future_departures + 1):
         if counter == 0:
-            sensors.append(OvApiSensor(ov_api, name, stop_code, timing_point_code, route_code, line_filter, counter))
+            sensors.append(OvApiSensor(ov_api, name, stop_code, timing_point_code, route_code, line_filter,line_direction, counter))
         else:
             sensors.append(OvApiSensor(ov_api, (name + "_future_" + str(counter)), stop_code, timing_point_code,
-                                       route_code, line_filter, counter))
+                                       route_code, line_filter,line_direction, counter))
 
     add_entities(sensors, True)
 
 
 class OvApiSensor(Entity):
-    def __init__(self, ov_api, name, stop_code, timing_point_code, route_code, line_filter, counter):
+    def __init__(self, ov_api, name, stop_code, timing_point_code, route_code, line_filter, line_direction,counter):
         self._json_data = ov_api
         self._name = name
         self._stop_code = stop_code
@@ -100,6 +104,7 @@ class OvApiSensor(Entity):
         self._route_code = route_code
         self._line_filter = line_filter
         self._sensor_number = counter
+        self._line_direction = line_direction
         self._icon = None
         self._destination = None
         self._provider = None
@@ -200,6 +205,7 @@ class OvApiSensor(Entity):
                 ATTR_UPDATE_CYCLE: str(MIN_TIME_BETWEEN_UPDATES.seconds) + ' seconds',
                 ATTR_CREDITS: CONF_CREDITS
             }
+
     def update(self):
         """Get the latest data from the OvApi."""
         self._json_data.update()
@@ -224,8 +230,8 @@ class OvApiSensor(Entity):
                 expected_arrival_time = datetime.strptime(stop['ExpectedDepartureTime'], "%Y-%m-%dT%H:%M:%S")
                 calculate_delay = expected_arrival_time - target_departure_time
                 delay = round(calculate_delay.seconds / 60)
-
-                stops_item = {
+                if (self._line_direction == 0 or stop['LineDirection'] == self._line_direction):
+                  stops_item = {
                     "destination": stop['DestinationName50'],
                     "provider": stop['DataOwnerCode'],
                     "transport_type": stop['TransportType'].title(),
@@ -236,9 +242,9 @@ class OvApiSensor(Entity):
                     "TargetDepartureDateTime": target_departure_time,
                     "ExpectedArrivalTime": expected_arrival_time.time(),
                     "Delay": delay
-                }
+                  }
 
-                stops_list.append(stops_item)
+                  stops_list.append(stops_item)
 
         if data is None:
             self._departure = STATE_UNKNOWN
@@ -292,7 +298,6 @@ class OvApiSensor(Entity):
             self._icon = 'mdi:bus'
         if self._transport_type == "Metro":
             self._icon = 'mdi:subway-variant'
-
 
 class OvApiData:
     def __init__(self, stop_code, timing_point_code):

@@ -4,8 +4,8 @@ This is a sensor for Home Assistant and it will retrieve departure information o
 
 ![Lovelace Screenshot](https://github.com/Paul-dH/Home-Assisant-Sensor-OvApi/blob/master/resources/img/preview.png)
 
-### Install:
-- Create the following folder structure: /config/custom_components/ovapi and place these [3 files](https://github.com/Paul-dH/Home-Assisant-Sensor-OvApi/tree/master/custom_components/ovapi) there.
+### Install (better use Hacs):
+- Create the following folder structure: /config/custom_components/ovapi and place these [3 files](https://github.com/Bram-diederik/Home-Assisant-Sensor-OvApi/tree/master/custom_components/ovapi) there.
 - Add the configuration to configuration.yaml, see the parameter descriptions below and refer to the examples.
 
 ### Sensor options (there are two ways to use the sensor):
@@ -26,7 +26,7 @@ This is a sensor for Home Assistant and it will retrieve departure information o
 **Optional parameters:**
 - **show_future_departures:** *(int, max value is 50)* - The sensor always creates one sensor in Hass, this property can be configured with a value of 2-5. If this is configured, the component creates the configured number of sensors in HASS. These sensors contain future departments together with theire delay if applicable.
 - **line_filter** *(int, comma seperated)* - You might bump into the fact that there are multiple lines that use the same stop, with this property you can filter all passes with the line number that you want.
-
+- **line_direction**(int,0,1,2) - Some timing_point_code's have transports going in two directions, with this proerty you can filter all directions (0) default option when parameter not set. or 1,2 accoring to the found transports in the api. 
 
 ### To find the stop_code (stopareacode) refer to the JSON response of: [v0.ovapi.nl](http://v0.ovapi.nl/stopareacode)
 I've used the building JSON parser from Firefox, the search input is on the top right.
@@ -53,7 +53,7 @@ I've used the building JSON parser from Firefox, the search input is on the top 
 - The result of this should be a list of line identifiers, expand them and look for the one that has the correct value in `DestinationName50`. Copy the line identifier, e.g. HTM_6_2.
 - Next, open the url: [http://v0.ovapi.nl/line/HTM_6_2](http://v0.ovapi.nl/line/HTM_6_2), this page lists all stops of the line. Search for your stop name, e.g. kastelenring.
 - Find the TimingPointCode and use this as value in the sensor configuration.
-
+- Check for a optional line direction
 ### Sensor configuration examples
 Create 1 sensor to show the next upcomming departure of a particular line
 ```yaml
@@ -90,6 +90,17 @@ sensor:
     show_future_departures: 4
 ```
 
+Create 3 sensors using timing_point_code  a line_filter and a line_direction.
+
+```yaml
+sensor:
+  - platform: ovapi
+    name: tram 19 Diemen
+    timing_point_code: 30002361
+    show_future_departures: 2
+    line_filter: 19
+    line_direction: 2
+```
 
 ### Lovelace card example:
 ```yaml
@@ -138,19 +149,11 @@ elements:
 ```
 
 ### Note and credits
+- [Paul-dH](https://github.com/Paul-dH) - For making the previous version of this integration
 - [Petro](https://community.home-assistant.io/u/petro/summary) - For extensive help at coding the sensor templates.
 - [Robban](https://github.com/Kane610) - A lot of basic help with the Python code.
 - [Danito](https://github.com/danito/HA-Config/blob/master/custom_components/sensor/stib.py) - I started with his script, learned a lot of it)
 - [pippyn](https://github.com/pippyn) - Huge contributions and a lot of bugfixes, thanks mate!
 - [rolfberkenbosch](https://github.com/rolfberkenbosch/) - For a start of the timing_point_code documentation.
 - [IIIdefconIII](https://github.com/IIIdefconIII/) - Some minor contributions to add the custom updater and updating the readme.
-
-### Custom updater:
-```yaml
-custom_updater:
-  track:
-    - components
-  component_urls:
-    - https://raw.githubusercontent.com/Paul-dH/Home-Assisant-Sensor-OvApi/master/custom_components.json
-```
 
