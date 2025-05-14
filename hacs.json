@@ -1,0 +1,8 @@
+{
+  "name": "Sensor OvApi",
+  "content_in_root": false,
+  "domain": "ovapi",
+  "domain_name": "Sensor OvApi",
+  "repository": "https://github.com/Bram-diederik/Home-Assisant-Sensor-OvApi",
+  "file_type": "integration"
+}
